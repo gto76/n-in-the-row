@@ -4,6 +4,8 @@
 # 
 
 from enum import Enum
+import copy
+import sys
 
 
 SIZE = 6
@@ -43,12 +45,31 @@ class Board:
 
 def main():
     board = Board(SIZE)
-    # board.brd[2][4] = F.X
-    # board.brd[1][4] = F.X
-    # board.brd[2][4] = F.X
-    board.brd[3][4] = F.X
-    print(board)
+    sign = F.X
     print(score(board, F.X))
+    print(board)
+
+    while True:
+        cell = get_next_move(board, sign)
+        board.brd[cell[0]][cell[1]] = sign
+        print(score(board, F.X))
+        print(board)
+        sys.stdout.flush()
+        sign = get_oposite(sign)
+        input()
+
+
+def get_next_move(board, sign):
+    empty_cells = get_coordinates_of(board, F.E)
+    scores = [score_for_move(board, sign, cell) for cell in empty_cells]
+    options = sorted(zip(scores, empty_cells))
+    return options[-1][1]
+
+
+def score_for_move(board, sign, cell):
+    next_board = copy.deepcopy(board)
+    next_board.brd[cell[0]][cell[1]] = sign
+    return score(next_board, sign)
 
 
 def score(board, sign):
@@ -94,12 +115,6 @@ def score_window(signs, sign):
     return 0
 
 
-def get_oposite(sign):
-    if sign == F.X:
-        return F.O
-    return F.X
-
-
 def get_coordinates(cell, delta, direction):
     if direction == D.HOR:
         start = cell[0] + delta
@@ -139,13 +154,13 @@ def get_coordinates(cell, delta, direction):
         extremes = [start_x, start_y, end_x, end_y]
         if any(extreme < 0 or extreme >= SIZE for extreme in extremes):
             return
-        # if start_x < 0 or start_y < 0 :
-        #     return
-        # if end_x >= SIZE or end_y >= SIZE:
-        #     return
         return list(zip(uni_range(start_x, end_x),
                         uni_range(start_y, end_y)))
 
+
+###
+##  UTIL
+#
 
 def uni_range(a, b):
     if b >= a:
@@ -162,6 +177,12 @@ def get_window(board, cells):
 
 def column(matrix, i):
     return [row[i] for row in matrix]
+
+
+def get_oposite(sign):
+    if sign == F.X:
+        return F.O
+    return F.X
 
 
 if __name__ == '__main__':
