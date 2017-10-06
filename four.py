@@ -46,24 +46,33 @@ class Board:
 def main():
     board = Board(SIZE)
     sign = F.X
-    print(score(board, F.X))
+    scr = 0
+    print(scr)
     print(board)
 
-    while True:
-        cell = get_next_move(board, sign)
+    while -float("inf") < scr < float("inf"):
+        cell = get_next_move(board, sign, 1)[1]
         board.brd[cell[0]][cell[1]] = sign
-        print(score(board, F.X))
+        scr = score(board, F.X)
+        print(scr)
         print(board)
-        sys.stdout.flush()
-        sign = get_oposite(sign)
         input()
+        sign = get_oposite(sign)
 
 
-def get_next_move(board, sign):
+def get_next_move(board, sign, depth):
     empty_cells = get_coordinates_of(board, F.E)
     scores = [score_for_move(board, sign, cell) for cell in empty_cells]
-    options = sorted(zip(scores, empty_cells))
-    return options[-1][1]
+    # options = zip(scores, empty_cells)
+    options = [list(a) for a in zip(scores, empty_cells)]
+    if depth == 0:
+        return sorted(options)[-1]
+    for option in options:
+        next_board = copy.deepcopy(board)
+        next_cell = option[1]
+        next_board.brd[next_cell[0]][next_cell[1]] = sign
+        option[0] = -get_next_move(next_board, get_oposite(sign), depth-1)[0]
+    return sorted(options)[-1]
 
 
 def score_for_move(board, sign, cell):
@@ -109,9 +118,15 @@ def get_score_for_cell(board, cell, sign, direction):
 def score_window(signs, sign):
     oposite_sign = get_oposite(sign)
     if signs.count(sign) == 0:
-        return -signs.count(oposite_sign)
+        out = -signs.count(oposite_sign)
+        if out == -GOAL:
+            return -float("inf")
+        return out
     elif signs.count(oposite_sign) == 0:
-        return signs.count(sign)
+        out = signs.count(sign)
+        if out == GOAL:
+            return float("inf")
+        return out
     return 0
 
 
