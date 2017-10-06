@@ -44,9 +44,9 @@ class Board:
 def main():
     board = Board(SIZE)
     # board.brd[2][4] = F.X
-    board.brd[1][4] = F.X
+    # board.brd[1][4] = F.X
     # board.brd[2][4] = F.X
-    # board.brd[3][4] = F.X
+    board.brd[3][4] = F.X
     print(board)
     print(score(board, F.X))
 
@@ -136,10 +136,13 @@ def get_coordinates(cell, delta, direction):
         start_y = cell[1] - delta
         end_x = start_x + GOAL - 1
         end_y = start_y - GOAL + 1
-        if start_x < 0 or start_y < 0:
+        extremes = [start_x, start_y, end_x, end_y]
+        if any(extreme < 0 or extreme >= SIZE for extreme in extremes):
             return
-        if end_x >= SIZE or end_y >= SIZE:
-            return
+        # if start_x < 0 or start_y < 0 :
+        #     return
+        # if end_x >= SIZE or end_y >= SIZE:
+        #     return
         return list(zip(uni_range(start_x, end_x),
                         uni_range(start_y, end_y)))
 
