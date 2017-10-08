@@ -5,11 +5,13 @@
 
 from enum import Enum
 import copy
-import sys
 
 
 SIZE = 6
 GOAL = 4
+
+SEARCH_DEPTH = 3
+PRUNE_FACTOR = 0.2
 
 
 class D(Enum):
@@ -50,8 +52,9 @@ def main():
     print(scr)
     print(board)
 
-    while -float("inf") < scr < float("inf"):
-        cell = get_next_move(board, sign, 1)[1]
+    while -float("inf") < scr < float("inf") and \
+        len(get_coordinates_of(board, F.E)) > 0:
+        cell = get_next_move(board, sign, SEARCH_DEPTH)[1]
         board.brd[cell[0]][cell[1]] = sign
         scr = score(board, F.X)
         print(scr)
@@ -63,16 +66,19 @@ def main():
 def get_next_move(board, sign, depth):
     empty_cells = get_coordinates_of(board, F.E)
     scores = [score_for_move(board, sign, cell) for cell in empty_cells]
-    # options = zip(scores, empty_cells)
-    options = [list(a) for a in zip(scores, empty_cells)]
+    options = sorted([list(a) for a in zip(scores, empty_cells)], reverse=True)
+    if options[0][0] in [-float("inf"), float("inf")]:
+        return options[0]
     if depth == 0:
-        return sorted(options)[-1]
+        return options [0]
+    pruned_size = int(SIZE*SIZE*PRUNE_FACTOR)
+    options = options[:pruned_size]
     for option in options:
         next_board = copy.deepcopy(board)
         next_cell = option[1]
         next_board.brd[next_cell[0]][next_cell[1]] = sign
         option[0] = -get_next_move(next_board, get_oposite(sign), depth-1)[0]
-    return sorted(options)[-1]
+    return sorted(options, reverse=True)[0]
 
 
 def score_for_move(board, sign, cell):
