@@ -10,8 +10,8 @@ import copy
 SIZE = 6
 GOAL = 4
 
-SEARCH_DEPTH = 3
-PRUNE_FACTOR = 0.2
+SEARCH_DEPTH = 5
+PRUNE_FACTOR = 0.1
 
 
 class D(Enum):
@@ -72,6 +72,8 @@ def get_next_move(board, sign, depth):
     if depth == 0:
         return options [0]
     pruned_size = int(SIZE*SIZE*PRUNE_FACTOR)
+    if pruned_size < 1:
+        pruned_size = 1
     options = options[:pruned_size]
     for option in options:
         next_board = copy.deepcopy(board)
